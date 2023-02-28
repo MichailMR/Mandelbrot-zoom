@@ -1,0 +1,68 @@
+function limitvalue(xs, ys, limit = 2, maxsteps = 80)
+	itterations = nothing
+
+	for y in ys
+		hitterations = []
+	
+		for x in xs
+			itteration = 1
+			z = x + y*1im
+			c = z
+			
+			while itteration < maxsteps && abs(z) < limit
+				z = z^2 + c
+				itteration += 1
+			end
+			
+			append!(hitterations, itteration)
+		end
+		
+		if itterations == nothing
+			itterations = hitterations
+		else
+			itterations = hcat(itterations, hitterations)
+		end
+	end
+	
+	return 255 .- itterations
+end
+
+#Plotting the mandelbrot set
+using Plots
+plotlyjs()
+
+const e = ℯ
+
+const dots = 400
+const zoomcoordinate = -e/7-e/20im
+const zoomsteps = 20
+
+println("Starting plotting")
+
+animation = @animate for i in range(0, zoomsteps*10, step=0.1)
+	x = range(
+		real(zoomcoordinate) - 2*2^-i,
+		real(zoomcoordinate) + 1*2^-i,
+		length=dots
+	)
+	y = range(
+		imag(zoomcoordinate) - 1*2^-i,
+		imag(zoomcoordinate) + 1*2^-i,
+		length=dots
+	)
+	
+	z = limitvalue(x, y)
+
+	heatmap(
+		x,
+		y,
+		z,
+		c = :plasma,
+		cbar = false,
+		framestyle = :none
+	)
+
+	if (i)%(zoomsteps/10) == 0 println(i*100/zoomsteps, "% done") end
+end
+
+gif(animation, "zoom_mandelbrot.gif", fps = 10)

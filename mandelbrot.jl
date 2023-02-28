@@ -1,0 +1,50 @@
+function limitvalue(xs, ys, limit = 2, maxsteps = 80)
+	itterations = nothing
+
+	for y in ys
+		hitterations = []
+	
+		for x in xs
+			itteration = 1
+			z = x + y*1im
+			c = z
+			
+			while itteration < maxsteps && abs(z) < limit
+				z = z^2 + c
+				itteration += 1
+			end
+			
+			append!(hitterations, itteration)
+		end
+		
+		if itterations == nothing
+			itterations = hitterations
+		else
+			itterations = hcat(itterations, hitterations)
+		end
+	end
+	
+	return 255 .- itterations
+end
+
+println("Started plotting")
+
+#Plotting the mandelbrot set
+using Plots
+plotlyjs()
+
+const dotsize = 1/400
+const zoomcoordinate = -0.5577- 0.6099im
+
+@gif for i in 1:10
+	x = range(-2*2^-1, 1*2^-i, step=dotsize)
+	y = range(-1*2^-1, 1*2^-1, step=dotsize)
+	z = limitvalue(x, y)
+
+	heatmap(
+		x,
+		y,
+		z,
+		c = :plasma,
+	)
+end
